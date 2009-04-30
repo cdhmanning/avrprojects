@@ -1,0 +1,4 @@
+These are some AVR projects
+cdhmlib  My library of useful funtions
+atio     A Lego I2C sensor
+ldrtest  A test for LDRs and phototransistors
