@@ -11,7 +11,7 @@ static volatile uint8_t txqtail;
 static volatile uint8_t txq[TX_QUEUE_SIZE];
 static volatile uint8_t txSending;
 
-void intuart_Init(uint8_t brg)
+void usart_Init(uint8_t brg)
 {
   UBRR0L=brg;
   UBRR0H=0;
@@ -22,7 +22,7 @@ void intuart_Init(uint8_t brg)
   txqhead = 0;
 }
 
-uint8_t intuart_Receive(uint8_t *b)
+uint8_t usart_Receive(uint8_t *b)
 {
   if(!(UCSR0A & _BV(RXC0)))
     return 0;
@@ -31,7 +31,7 @@ uint8_t intuart_Receive(uint8_t *b)
 }
 
 
-static uint8_t intuart_TxQueueGet(void)
+static uint8_t usart_TxQueueGet(void)
 {
   uint8_t b = 0;
   
@@ -49,17 +49,17 @@ ISR(USART_TX_vect)
 {
   /* This is the TX Complete interupt */
   if(txqholding)
-    UDR0 = intuart_TxQueueGet();
+    UDR0 = usart_TxQueueGet();
   else
     txSending = 0;
 }
 
-void intuart_TxQueuePut(uint8_t b)
+void usart_TxQueuePut(uint8_t b)
 {
   uint8_t intEnabled = interrupt_GetAndDisable();
   
   if(txqholding == TX_QUEUE_SIZE)
-    intuart_TxQueueGet();
+    usart_TxQueueGet();
   txq[txqhead] = b;
   txqholding++;
   txqhead++;
@@ -68,7 +68,7 @@ void intuart_TxQueuePut(uint8_t b)
     
   if(!txSending){
     txSending = 1;
-    UDR0 = intuart_TxQueueGet();
+    UDR0 = usart_TxQueueGet();
   }
     
   interrupt_Enable(intEnabled);
@@ -76,18 +76,27 @@ void intuart_TxQueuePut(uint8_t b)
 
 const char hexStr[]= "0123456789ABCDEF";
 
-void intuart_TxQueuePutHex(uint8_t x)
+void usart_TxQueuePutHex(uint8_t x)
 {
-  intuart_TxQueuePut('[');
-  intuart_TxQueuePut(hexStr[(x >> 4) & 0xf]);
-  intuart_TxQueuePut(hexStr[x & 0xf]);
-  intuart_TxQueuePut(']');
+  usart_TxQueuePut('[');
+  usart_TxQueuePut(hexStr[(x >> 4) & 0x0f]);
+  usart_TxQueuePut(hexStr[x & 0x0f]);
+  usart_TxQueuePut(']');
+}
+void usart_TxQueuePutDec(uint8_t x)
+{
+  usart_TxQueuePut('0' + (x /100));
+  x %= 100;
+  usart_TxQueuePut('0' + (x /10));
+  x %= 10;
+  usart_TxQueuePut('0' + x);
+  usart_TxQueuePut(' ');
 }
 
-void intuart_TxQueuePutStr(const uint8_t *str)
+void usart_TxQueuePutStr(const uint8_t *str)
 {
   while(*str){
-    intuart_TxQueuePut(*str);
+    usart_TxQueuePut(*str);
     str++;
   }
 }

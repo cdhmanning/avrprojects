@@ -51,10 +51,10 @@ ProcessMessage (void)
 
 	/* Have received a message */
 	
-	intuart_TxQueuePutStr("\n\rMsg:");
+	usart_TxQueuePutStr("\n\rMsg:");
 
-	intuart_TxQueuePutHex(messageBuf[0]);
-	intuart_TxQueuePutHex(messageBuf[1]);
+	usart_TxQueuePutHex(messageBuf[0]);
+	usart_TxQueuePutHex(messageBuf[1]);
 	
 	/* Command received */
 	if (messageBuf[0] == 0x40)
@@ -80,7 +80,7 @@ ProcessMessage (void)
 		twi_sl_update(messageBuf, 5);
 	}
 
-	intuart_TxQueuePutStr("\n\r");
+	usart_TxQueuePutStr("\n\r");
 }
 
 static unsigned char slaveAddress;
@@ -97,8 +97,8 @@ main (void)
 	// Init timer
 	Timer0Initialise ();
 	
-	intuart_Init(12);
-	intuart_TxQueuePutStr("\n\r"
+	usart_Init(12);
+	usart_TxQueuePutStr("\n\r"
 			      "MBOYS ATIO sensor\n\r"
 			      "-----------------\n\r");
 	
@@ -134,7 +134,7 @@ main (void)
 		counter++;
 		if(counter> 50000){
 			counter = 0;
-			intuart_TxQueuePut('.');
+			usart_TxQueuePut('.');
 		}
 	}
 }

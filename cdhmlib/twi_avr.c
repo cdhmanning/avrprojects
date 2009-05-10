@@ -39,8 +39,8 @@
 #define TWI_SL_SEND_SIZE 16
 
 
-#define twi_debug(x) intuart_TxQueuePut(x)
-#define twi_debug_hex(x) intuart_TxQueuePutHex(x)
+#define twi_debug(x) usart_TxQueuePut(x)
+#define twi_debug_hex(x) usart_TxQueuePutHex(x)
 
 
 enum

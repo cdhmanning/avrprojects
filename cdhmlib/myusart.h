@@ -3,13 +3,14 @@
 
 #include <stdint.h>
 
-void intuart_Init(uint8_t brg);
+void usart_Init(uint8_t brg);
 
-uint8_t intuart_Receive(uint8_t *b);
+uint8_t usart_Receive(uint8_t *b);
 
-void intuart_TxQueuePut(uint8_t b);
-void intuart_TxQueuePutHex(uint8_t b);
-void intuart_TxQueuePutStr(const uint8_t *str);
+void usart_TxQueuePut(uint8_t b);
+void usart_TxQueuePutHex(uint8_t b);
+void usart_TxQueuePutDec(uint8_t b);
+void usart_TxQueuePutStr(const uint8_t *str);
 
 #endif
 
