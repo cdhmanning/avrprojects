@@ -3,9 +3,9 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-#include "int_help.h"
+#include "myinterrupts.h"
 #include "timer0.h"
-#include "int_uart.h"
+#include "myusart.h"
 
 
 
@@ -38,14 +38,14 @@ void ShowIntVal(uint8_t val)
 {
 	uint8_t x;
 	x = val/100;
-	intuart_TxQueuePut('0'+x);
+	usart_TxQueuePut('0'+x);
 	val = val % 100;
 	x = val/10;
-	intuart_TxQueuePut('0'+x);
+	usart_TxQueuePut('0'+x);
 	val = val % 10;
 	x = val;
-	intuart_TxQueuePut('0'+x);
-	intuart_TxQueuePut(' ');
+	usart_TxQueuePut('0'+x);
+	usart_TxQueuePut(' ');
 }
 
 #define N_SAMPLES 10
@@ -88,8 +88,8 @@ main (void)
 	// Init timer
 	Timer0Initialise ();
 	
-	intuart_Init(12);
-	intuart_TxQueuePutStr("\n\r"
+	usart_Init(12);
+	usart_TxQueuePutStr("\n\r"
 			      "LDR Test 5ms\n\r"
 			      "-----------------\n\r");
 
@@ -118,8 +118,8 @@ main (void)
 		OFF();
 		ShowIntVal(val);
 
-		intuart_TxQueuePut('\n');
-		intuart_TxQueuePut('\r');
+		usart_TxQueuePut('\n');
+		usart_TxQueuePut('\r');
 		WaitMilliseconds(500);		
 
 
