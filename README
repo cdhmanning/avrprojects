@@ -1,4 +1,6 @@
 These are some AVR projects
-cdhmlib  My library of useful funtions
-atio     A Lego I2C sensor
-ldrtest  A test for LDRs and phototransistors
+cdhmlib  	My library of useful funtions (used by other projects)
+atio     	A Lego I2C sensor that provides IO port and ADC
+ldrtest  	A test for LDRs and phototransistors
+colour-sensor	A multi-channel colour sensor.
+usarttest	A test program for the usart.
