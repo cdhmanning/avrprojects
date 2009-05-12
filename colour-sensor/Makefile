@@ -4,6 +4,7 @@ CDHMLIB     := ../cdhmlib
 C_FILES     :=  main.c 
 C_FILES	    +=  $(CDHMLIB)/twi_avr.c $(CDHMLIB)/timer0.c 
 C_FILES     +=  $(CDHMLIB)/myusart.c $(CDHMLIB)/myinterrupts.c
+C_FILES	    +=  $(CDHMLIB)/myeeprom.c
 
 OBJ_FILES   := $(C_FILES:.c=.o)
 C_FLAGS     := -Os -I$(CDHMLIB)

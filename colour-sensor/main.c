@@ -7,15 +7,33 @@
 #include "twi_avr.h"
 #include "timer0.h"
 #include "myusart.h"
+#include "myeeprom.h"
+
+
+#if 1
+#define debug_Put(x) 	do{}while(0)
+#define debug_PutDec(x) do{}while(0)
+#define debug_PutHex(x) do{}while(0)
+#define debug_PutStr(x) do{}while(0)
+#else
+#define debug_Put(x) 	usart_TxQueuePut(x)
+#define debug_PutDec(x) usart_TxQueuePutDec(x)
+#define debug_PutHex(x) usart_TxQueuePutHex(x)
+#define debug_PutStr(x) usart_TxQueuePutStr(x)
+#endif
+
 
 #define SENSOR_SLAVE_ADDRESS 0x02
 #define NCHANNELS	4
 #define NCOLOURS	4 /* ambient, red, blue, green */
 
+#define CALIBRATION_ADDRESS	0
+
 /* 
  * LED control on PORTB
  */
- 
+
+
 #define RED_PIN		(1<<5)
 #define GREEN_PIN	(1<<4)
 #define BLUE_PIN	(1<<3)
@@ -32,11 +50,74 @@ const char SensorType[8] = "COLOUR4";
 
 
 uint8_t rawValue[NCHANNELS][NCOLOURS];
+uint8_t correctedValue[NCHANNELS][NCOLOURS];
+
+struct {
+	uint8_t offset[NCOLOURS];
+	uint8_t scale[NCOLOURS];
+	uint8_t sum;
+	uint8_t xor;
+} calibrationData;
 
 static uint8_t state;
 static uint8_t channel;
 static uint8_t rgb;
 
+
+void SaveCalibration(void)
+{
+	uint8_t sum=0;
+	uint8_t xor=0;
+	uint8_t i;
+
+	for(i=0; i < NCOLOURS; i++){
+		sum += calibrationData.offset[i];
+		xor ^= calibrationData.offset[i];
+		sum += calibrationData.scale[i];
+		xor ^= calibrationData.scale[i];
+		sum++;
+	}
+	calibrationData.xor = xor;
+	calibrationData.sum = sum;
+	
+	eeprom_Write(CALIBRATION_ADDRESS,
+		     &calibrationData,
+		     sizeof(calibrationData));
+}
+
+void LoadCalibration(void)
+{
+	uint8_t sum=0;
+	uint8_t xor=0;
+	uint8_t i;
+
+	eeprom_Read(CALIBRATION_ADDRESS,
+		    &calibrationData,
+		    sizeof(calibrationData));
+	/*
+	 * Check if the calibration data is good.
+	 * If not, set up default.
+	 */
+
+	for(i=0; i < NCOLOURS; i++){
+		sum += calibrationData.offset[i];
+		xor ^= calibrationData.offset[i];
+		sum += calibrationData.scale[i];
+		xor ^= calibrationData.scale[i];
+		sum++;
+	}
+
+	if(sum != calibrationData.sum ||
+	   xor != calibrationData.xor){
+		for(i=0; i < NCOLOURS; i++){
+			calibrationData.offset[i]=0;
+			calibrationData.scale[i]=64;
+		}
+		
+		SaveCalibration();
+	   
+	}
+}
 
 
 void SampleProcess(void)
@@ -158,11 +239,11 @@ Spin (void)
 
 	if(xx == 0 && state == 0){
 		
-		usart_TxQueuePutDec(rawValue[0][0]);
-		usart_TxQueuePutDec(rawValue[0][1]);
-		usart_TxQueuePutDec(rawValue[0][2]);
-		usart_TxQueuePutDec(rawValue[0][3]);
-		usart_TxQueuePutStr("\n\r");
+		debug_PutDec(rawValue[0][0]);
+		debug_PutDec(rawValue[0][1]);
+		debug_PutDec(rawValue[0][2]);
+		debug_PutDec(rawValue[0][3]);
+		debug_PutStr("\n\r");
 		
 		rgb = 0;
 		channel = 0;
@@ -178,10 +259,10 @@ ProcessMessage (void)
 
 	/* Have received a message */
 	
-	usart_TxQueuePutStr("\n\rMsg:");
+	debug_PutStr("\n\rMsg:");
 
-	usart_TxQueuePutHex(messageBuf[0]);
-	usart_TxQueuePutHex(messageBuf[1]);
+	debug_PutHex(messageBuf[0]);
+	debug_PutHex(messageBuf[1]);
 	
 	/* Command received */
 	if (messageBuf[0] == 0x40){
@@ -200,7 +281,7 @@ ProcessMessage (void)
 		twi_sl_update(rawValue, sizeof(rawValue));
 	}
 
-	usart_TxQueuePutStr("\n\r");
+	debug_PutStr("\n\r");
 }
 
 static unsigned char slaveAddress;
@@ -218,7 +299,7 @@ main (void)
 	Timer0Initialise ();
 	
 	usart_Init(12);
-	usart_TxQueuePutStr("\n\r"
+	debug_PutStr("\n\r"
 			      "MBOYS COLOUR sensor\n\r"
 			      "-------------------\n\r");
 	
@@ -253,7 +334,7 @@ main (void)
 		counter++;
 		if(counter> 50000){
 			counter = 0;
-//			usart_TxQueuePut('.');
+//			debug_Put('.');
 		}
 	}
 }
