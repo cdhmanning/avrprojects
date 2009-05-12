@@ -6,12 +6,14 @@
 #include "myinterrupts.h"
 #include "timer0.h"
 #include "myusart.h"
+#include "myeeprom.h"
 
 
 int
 main (void)
 {
 	uint8_t ret, b, x;
+	uint8_t ee[2];
 	
 	// Set clock to full speed
 	CLKPR = 0x80;
@@ -34,9 +36,18 @@ main (void)
 		if(ret){
 			usart_TxQueuePut('*');
 			b = x;
+			ee[0] = b;
+			ee[1] = ~b;
+			eeprom_Write(66,ee,2);
+			ee[0] = ee[1] = 0;
+			
 		}
+		eeprom_Read(66,ee,2);
 		usart_TxQueuePutDec(b);
 		usart_TxQueuePutHex(b);
+		usart_TxQueuePut('!');
+		usart_TxQueuePutHex(ee[0]);
+		usart_TxQueuePutHex(ee[1]);
 		usart_TxQueuePutStr("\n\r");
 		WaitMilliseconds(500);		
 
