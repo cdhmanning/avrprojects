@@ -3,7 +3,7 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
-#define TX_QUEUE_SIZE 128
+#define TX_QUEUE_SIZE 64
 
 static volatile uint8_t txqholding;
 static volatile uint8_t txqhead;

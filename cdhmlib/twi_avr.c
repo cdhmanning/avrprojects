@@ -38,10 +38,13 @@
 #define TWI_SL_RCPT_SIZE 16
 #define TWI_SL_SEND_SIZE 16
 
-
+#if 1
+#define twi_debug(x) 	 do{}while(0)
+#define twi_debug_hex(x) do{}while(0)
+#else
 #define twi_debug(x) usart_TxQueuePut(x)
 #define twi_debug_hex(x) usart_TxQueuePutHex(x)
-
+#endif
 
 enum
 {
