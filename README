@@ -5,3 +5,4 @@ ldrtest  	A test for LDRs and phototransistors
 colour-sensor	A multi-channel colour sensor.
 usarttest	A test program for the usart.
 bumpAndTurn	A simple bump and turn robot.
+powerStress	Randomly controls a relay for power stress testing
