@@ -4,3 +4,4 @@ atio     	A Lego I2C sensor that provides IO port and ADC
 ldrtest  	A test for LDRs and phototransistors
 colour-sensor	A multi-channel colour sensor.
 usarttest	A test program for the usart.
+bumpAndTurn	A simple bump and turn robot.
