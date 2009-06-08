@@ -18,13 +18,16 @@ volatile unsigned char randomCounter;
 
 ISR(TIMER0_COMPA_vect)
 {
+	randomCounter++;
 	msInterruptHappened=1;
 }
 
 static void WaitNextMillisecond(void)
 {
 	do{ 
+		cli();
 		randomCounter++;
+		sei();
 	} while (!msInterruptHappened);
 	
 	msInterruptHappened=0;
@@ -62,15 +65,16 @@ int main(void)
 	sei();
 
 	while(1){
-		PORTB = RELAY_PIN;		
-		/* Wait for at least a few seconds */
-		WaitSeconds(1);
-		/* Wait for a random number of seconds. */
-		WaitSeconds(1*(randomCounter & 0xf));
-		
 		PORTB = 0;
 		
 		/* Leave off by waiting 2 sec */
 		WaitSeconds(2);
+
+		PORTB = RELAY_PIN;		
+
+		/* Wait for a random number of seconds. */
+		WaitSeconds(5);
+		WaitSeconds(4*(randomCounter & 0xf));
+		
 	}
 }
