@@ -25,7 +25,7 @@
 
 #define SENSOR_SLAVE_ADDRESS 0x02
 #define NCHANNELS	4
-#define NCOLOURS	4 /* ambient, red, blue, green */
+#define NCOLOURS	5 /* ambient, IR, red, green, blue */
 
 #define CALIBRATION_ADDRESS	0
 
@@ -34,14 +34,15 @@
  */
 
 
-#define RED_PIN		(1<<5)
-#define GREEN_PIN	(1<<4)
-#define BLUE_PIN	(1<<3)
+#define IR_PIN		(1<<5)
+#define RED_PIN		(1<<4)
+#define GREEN_PIN	(1<<3)
+#define BLUE_PIN	(1<<2)
 
 #define CHANNEL0_PIN	(1<<0)
 #define CHANNEL1_PIN	(1<<1)
-#define CHANNEL2_PIN	(1<<2)
-#define CHANNEL3_PIN	(1<<6)
+#define CHANNEL2_PIN	(1<<6)
+#define CHANNEL3_PIN	(1<<7)
 
 
 const char SensorVersion[8] = "1.1";
@@ -145,23 +146,26 @@ void SampleProcess(void)
 		
 			
 			switch(rgb){
+				default:
 				case 0: DDRB = 0;
 					PORTB = 0;
 					break;
 				case 1:
+					DDRB = IR_PIN;
+					PORTB = IR_PIN;
+					break;
+				case 2:
 					DDRB = RED_PIN;
 					PORTB = RED_PIN;
 					break;
-				case 2:
+				case 3:
 					DDRB = GREEN_PIN;
 					PORTB = GREEN_PIN;
 					break;
-				case 3: 
+				case 4: 
 					DDRB = BLUE_PIN;
 					PORTB = BLUE_PIN;
 					break;
-				default:
-					DDRB = 0;
 			}
 			
 			switch(channel){
@@ -177,6 +181,8 @@ void SampleProcess(void)
 				case 3:
 					DDRB |= CHANNEL3_PIN;
 					break;
+                                default:
+                                        break;
 			}
 						
 			start_sample = 1;
