@@ -40,4 +40,4 @@ load: $(TARGET_HEX)
 
 .PHONY: clean
 clean:
-	rm $(TARGET_HEX) $(TARGET_ELF) $(OBJ_FILES)
+	rm $(TARGET_HEX) $(TARGET_ELF) $(OBJ_FILES) $(TARGET_ELF).map
